@@ -38,8 +38,20 @@ class Handler implements URLHandler {
     }
 
     public String handleRequest(URI url) throws IOException {
+        List<File> paths = FileHelpers.getFiles(Paths.get("./technical"));
         if (url.getPath().equals("/")) {
-            return String.format("There are %d files to searach", getFiles("/"));
+            return String.format("There are %d files to searach", paths.size());
+        } else if (url.getPath().equals("/search")) {
+            String[] parameters = url.getQuery().split("=");
+            if (parameters[0].equals("q")) {
+                List<String> foundPaths = new ArrayList<>();
+                for (int i = 0; i < paths.size(); i++) {
+                    if (FileHelpers.readFile(paths.get(i)).contains(parameters[1])) {
+                        foundPaths.add(paths.get(i).toString());
+                    }
+                }
+                return String.format("There are %d files found:%s", foundPaths.size(), foundPaths);
+            }
         }
         return "Don't know how to handle that path!";
     }
